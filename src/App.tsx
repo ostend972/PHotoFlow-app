@@ -1,6 +1,8 @@
 
 
-import React, { useState } from 'react';
+
+
+import React, { useState, useEffect } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Sidebar } from './components/layout/Sidebar';
 import { Dashboard } from './pages/Dashboard';
@@ -11,18 +13,55 @@ import { Projects } from './pages/Projects';
 import { Clients } from './pages/Clients';
 import { Models } from './pages/Models';
 import { Settings } from './pages/Settings';
-import { Menu } from 'lucide-react';
-
-// Placeholder components
-const ComingSoon = ({ title }: { title: string }) => (
-  <div className="flex flex-col items-center justify-center h-full text-slate-400">
-    <h2 className="text-2xl font-bold text-slate-300 mb-2">{title}</h2>
-    <p>Cette fonctionnalité sera bientôt disponible.</p>
-  </div>
-);
+import { OnboardingWizard } from './components/onboarding/OnboardingWizard';
+import { Menu, Loader2 } from 'lucide-react';
+import { api } from './lib/api';
+import { AppSettings } from './types';
 
 function App() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [isFirstRun, setIsFirstRun] = useState(false);
+  const [initialSettings, setInitialSettings] = useState<AppSettings | null>(null);
+
+  useEffect(() => {
+    const initApp = async () => {
+      try {
+        const settings = await api.getSettings();
+        setInitialSettings(settings);
+        
+        if (settings.general.isFirstRun) {
+          setIsFirstRun(true);
+        }
+      } catch (error) {
+        console.error("Failed to load settings", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    initApp();
+  }, []);
+
+  const handleOnboardingComplete = () => {
+    setIsFirstRun(false);
+  };
+
+  if (loading) {
+    return (
+      <div className="h-screen w-screen flex items-center justify-center bg-background">
+        <Loader2 className="animate-spin text-black" size={32} />
+      </div>
+    );
+  }
+
+  if (isFirstRun && initialSettings) {
+    return (
+      <OnboardingWizard 
+        initialSettings={initialSettings} 
+        onComplete={handleOnboardingComplete} 
+      />
+    );
+  }
 
   return (
     <Router>

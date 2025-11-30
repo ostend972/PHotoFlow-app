@@ -7,6 +7,8 @@ const SETTINGS_FILE = path.join(app.getPath('userData'), 'settings.json');
 
 const DEFAULT_SETTINGS: AppSettings = {
   general: {
+    isFirstRun: true,
+    userName: '',
     theme: 'system',
     language: 'fr',
     notifications: true,
@@ -48,7 +50,11 @@ export const settingsHandlers = {
         const data = await fs.readJSON(SETTINGS_FILE);
         // Merge with defaults in case new keys were added
         const merged = { ...DEFAULT_SETTINGS, ...data };
-        // Deep merge for nested objects to ensure new keys in existing sections appear
+        // Deep merge
+        merged.general = { ...DEFAULT_SETTINGS.general, ...(data.general || {}) };
+        merged.folders = { ...DEFAULT_SETTINGS.folders, ...(data.folders || {}) };
+        merged.files = { ...DEFAULT_SETTINGS.files, ...(data.files || {}) };
+        merged.performance = { ...DEFAULT_SETTINGS.performance, ...(data.performance || {}) };
         merged.data = { ...DEFAULT_SETTINGS.data, ...(data.data || {}) };
         return merged;
       }

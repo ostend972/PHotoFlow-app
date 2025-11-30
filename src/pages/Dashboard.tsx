@@ -5,9 +5,11 @@
 
 
 
+
+
 import React, { useEffect, useState } from 'react';
 import { api } from '../lib/api';
-import { Projet, ActivityLog, DiskUsage } from '../types';
+import { Projet, ActivityLog, DiskUsage, AppSettings } from '../types';
 import { 
   Folder, 
   ArrowRight,
@@ -32,22 +34,27 @@ export function Dashboard() {
       clientCount: 0,
       modelCount: 0
   });
+  const [userName, setUserName] = useState('Photographe');
 
   useEffect(() => {
     const loadData = async () => {
       api.logDebug('Dashboard Load', 'Fetching dashboard data', 'Dashboard');
-      const [allProjects, allClients, allModels, logs, diskData] = await Promise.all([
+      const [allProjects, allClients, allModels, logs, diskData, settings] = await Promise.all([
           api.getProjets(),
           api.getClients(),
           api.getModeles(),
           api.getActivityLogs(),
-          api.getDriveSpace()
+          api.getDriveSpace(),
+          api.getSettings()
       ]);
       
       setProjets(allProjects);
       setRecentProjects(allProjects.slice(0, 4)); // Get top 4
       setActivity(logs.slice(0, 6)); // Get top 6 logs
       setDisks(diskData);
+      if (settings.general.userName) {
+          setUserName(settings.general.userName);
+      }
       
       const totalSize = allProjects.reduce((acc, p) => acc + (p.taille_bytes || 0), 0);
       const activeCount = allProjects.filter(p => p.statut === 'en_cours').length;
@@ -139,7 +146,7 @@ export function Dashboard() {
       {/* 1. Header Personalise */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end border-b border-border pb-6 shrink-0 gap-4">
         <div>
-          <h2 className="text-3xl md:text-4xl font-light text-black tracking-tight">{getGreeting()} Alan 👋</h2>
+          <h2 className="text-3xl md:text-4xl font-light text-black tracking-tight">{getGreeting()} {userName} 👋</h2>
           <p className="text-text-secondary mt-2 text-sm font-medium uppercase tracking-wide">
              {new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
           </p>

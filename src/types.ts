@@ -94,6 +94,8 @@ export interface SourceFolder {
 
 export interface AppSettings {
   general: {
+    isFirstRun: boolean;
+    userName: string;
     theme: 'light' | 'dark' | 'system';
     language: 'fr' | 'en';
     notifications: boolean;

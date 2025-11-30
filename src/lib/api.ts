@@ -8,6 +8,7 @@
 
 
 
+
 import { Template, Client, Modele, Projet, IElectronAPI, AppSettings, ActivityLog, DiskUsage, SourceFolder, DebugLogEntry } from '../types';
 
 // Mock data pour le mode navigateur (sans Electron)
@@ -123,6 +124,8 @@ let MOCK_PROJECTS: Projet[] = [
 
 let MOCK_SETTINGS: AppSettings = {
   general: {
+    isFirstRun: true,
+    userName: '',
     theme: 'system',
     language: 'fr',
     notifications: true,
